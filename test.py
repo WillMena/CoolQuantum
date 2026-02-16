@@ -1,5 +1,5 @@
 from qiskit import QuantumCircuit, transpile
-from qiskit_aer import Aer
+from qiskit_aer import AerSimulator
 from qiskit.visualization import plot_histogram
 import matplotlib.pyplot as plt
 
@@ -15,7 +15,7 @@ circuit.measure([0, 1], [0, 1])
 circuit.draw(output='mpl', filename='bell_circuit.png')
 
 # Simulation using QASM simulator
-simulator = Aer.get_backend('qasm_simulator')
+simulator = AerSimulator()
 transpiled_circuit = transpile(circuit, simulator)
 job = simulator.run(transpiled_circuit)
 result = job.result()
