@@ -10,12 +10,6 @@ def getRandomBitString(numbits):
 
 numqubits = 29
 
-def get_arrow(bit, basis):
-    if basis == '0': # Rectilinear
-        return '↕' if bit == '0' else '↔'
-    else:            # Diagonal
-        return '↘' if bit == '1' else '↗'
-
 def bb84():
     # ALICE
     alice_bits = getRandomBitString(numqubits)
