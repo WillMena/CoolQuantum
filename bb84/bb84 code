@@ -1,5 +1,6 @@
 from qiskit import QuantumCircuit, transpile
 from qiskit_aer import AerSimulator
+
 import random
 
 random.seed(37)
@@ -7,11 +8,51 @@ random.seed(37)
 def getRandomBitString(numbits):
     return f"{random.getrandbits(numbits):0{numbits}b}"
 
-numqubits = 100
-bobs_basis = getRandomBitString(numqubits)
+numqubits = 29
+
+def get_arrow(bit, basis):
+    if basis == '0': # Rectilinear
+        return '↕' if bit == '0' else '↔'
+    else:            # Diagonal
+        return '↘' if bit == '1' else '↗'
 
 def bb84():
-
+    # ALICE
     alice_bits = getRandomBitString(numqubits)
     alice_basis = getRandomBitString(numqubits)
+    circuit = QuantumCircuit(numqubits, numqubits)
 
+    for qubit_index in range(numqubits):
+        if int(alice_bits[qubit_index]) == 1: # if bit is 1, flip |0> to |1>
+            circuit.x(qubit_index)
+        if int(alice_basis[qubit_index]) == 1: # if basis is 1, new basis is diagonal 
+            circuit.h(qubit_index)
+    
+    print("basis 1 : diagonal")
+    print(f"{alice_bits} alice sends")
+    print(f"{alice_basis} alice basis")
+
+    # BOB
+    bobs_basis = getRandomBitString(numqubits)
+
+    for qubit_index in range(numqubits):
+        if int(bobs_basis[qubit_index]) == 1: # if 1, measure in diagonal basis
+            circuit.h(qubit_index)
+            circuit.measure(qubit_index, qubit_index)
+        if int(bobs_basis[qubit_index]) == 0: # if 0, measure in rectilinear basis
+            circuit.measure(qubit_index, qubit_index)
+    
+    simulator = AerSimulator()
+    transpiled_circuit = transpile(circuit, simulator)
+    job = simulator.run(transpiled_circuit,shots=1)
+    result = job.result()
+    counts = result.get_counts()
+    #And combine the results
+    bits = list(counts.keys())[0][::-1] # little-endian so flip values
+
+    print(f"{bobs_basis} bob basis")
+    print(f"{bits} bob bits")
+
+    return bits
+
+bb84()
