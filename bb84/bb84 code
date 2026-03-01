@@ -22,7 +22,7 @@ def bb84():
         if int(alice_basis[qubit_index]) == 1: # if basis is 1, new basis is diagonal 
             circuit.h(qubit_index)
     
-    print("basis 1 : diagonal")
+    print("To read basis, 1 : diagonal 2: rectilinear")
     print(f"{alice_bits} alice sends")
     print(f"{alice_basis} alice basis")
 
