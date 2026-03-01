@@ -1,2 +1,17 @@
 from qiskit import QuantumCircuit, transpile
 from qiskit_aer import AerSimulator
+import random
+
+random.seed(37)
+
+def getRandomBitString(numbits):
+    return f"{random.getrandbits(numbits):0{numbits}b}"
+
+numqubits = 100
+bobs_basis = getRandomBitString(numqubits)
+
+def bb84():
+
+    alice_bits = getRandomBitString(numqubits)
+    alice_basis = getRandomBitString(numqubits)
+
