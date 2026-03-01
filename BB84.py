@@ -1,0 +1,1 @@
+#start preparing GHZ state here
