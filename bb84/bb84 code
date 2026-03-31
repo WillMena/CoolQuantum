@@ -58,11 +58,15 @@ def bb84(numqubits):
     print(f"Alice's key: {Alice_key}")
     print(f"Bob's key: {Bob_key}")
 
+    qber = calculateQber(Alice_key, Bob_key)
+
+    return qber
+
+def calculateQber(Alice_key, Bob_key):
     subset = random.sample(range(len(Alice_key)), round(len(Alice_key)/2))
     print(subset)
 
     qber = sum(1 for i in subset if Alice_key[i] == Bob_key[i]) / len(subset)
-
     return qber
 
 ns = np.arange(10,29,1)
