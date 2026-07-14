@@ -22,7 +22,7 @@ def bb84():
         if int(alice_basis[qubit_index]) == 1: # if basis is 1, new basis is diagonal 
             circuit.h(qubit_index)
     
-    print("basis 1 : diagonal")
+    print("basis 1 : diagonal, basis 0 : rectilinear")
     print(f"{alice_bits} alice sends")
     print(f"{alice_basis} alice basis")
 
@@ -42,11 +42,25 @@ def bb84():
     result = job.result()
     counts = result.get_counts()
     #And combine the results
-    bits = list(counts.keys())[0][::-1] # little-endian so flip values
+    bobs_bits = list(counts.keys())[0][::-1] # little-endian so flip values
 
     print(f"{bobs_basis} bob basis")
-    print(f"{bits} bob bits")
+    print(f"{bobs_bits} bob bits")
 
-    return bits
+    return bobs_bits, alice_bits, alice_basis, bobs_basis
 
 bb84()
+
+# sifted key
+ 
+alice_sifted = ""
+bob_sifted = ""
+bobs_bits, alice_bits, alice_basis, bobs_basis = bb84()
+
+for i in range(numqubits):
+    if alice_basis[i] == bobs_basis[i]: # if basis is the same, keep the bit
+        alice_sifted += alice_bits[i]
+        bob_sifted += bobs_bits[i]
+
+print(f"{alice_sifted} alice sifted key")
+print(f"{bob_sifted} bob sifted key")
