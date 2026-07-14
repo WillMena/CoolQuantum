@@ -26,6 +26,19 @@ def bb84(numqubits):
     print(f"{alice_bits} alice sends")
     print(f"{alice_basis} alice basis")
 
+    # EVE
+
+    eves_basis = getRandomBitString(numqubits)
+    print(f"{eves_basis} eve basis")
+
+    for qubit_index in range(numqubits):
+        if int(eves_basis[qubit_index]) == 1: # if 1, measure in diagonal basis
+            circuit.h(qubit_index) # have to put in rectilinear basis to measure (apply Hadamard on |+> or |-> to get |0> or |1>)
+            circuit.measure(qubit_index, qubit_index)
+            circuit.h(qubit_index) # put back in original basis
+        if int(eves_basis[qubit_index]) == 0: # if 0, measure in rectilinear basis
+            circuit.measure(qubit_index, qubit_index)
+
     # BOB
     bobs_basis = getRandomBitString(numqubits)
 
@@ -76,5 +89,3 @@ plt.plot(ns,qbers)
 plt.xlabel("n")
 plt.ylabel("Qber")
 plt.show()
-
-# check i am in the evesdropping branch
