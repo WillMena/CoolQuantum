@@ -86,7 +86,7 @@ ns = np.arange(10,29,1)
 qbers = [bb84(n) for n in ns]
 
 plt.plot(ns,qbers)
-plt.xlabel("n")
+plt.xlabel("Number of qubits")
 plt.ylabel("Qber")
 plt.savefig("qber.png")
 plt.show()
