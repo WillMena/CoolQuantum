@@ -88,4 +88,5 @@ qbers = [bb84(n) for n in ns]
 plt.plot(ns,qbers)
 plt.xlabel("n")
 plt.ylabel("Qber")
+plt.savefig("qber.png")
 plt.show()
