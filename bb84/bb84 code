@@ -22,14 +22,14 @@ def bb84(numqubits):
         if int(alice_basis[qubit_index]) == 1: # if basis is 1, new basis is diagonal 
             circuit.h(qubit_index)
     
-    print("basis 1 : diagonal, basis 0 : rectilinear")
-    print(f"{alice_bits} alice sends")
-    print(f"{alice_basis} alice basis")
+    #print("basis 1 : diagonal, basis 0 : rectilinear")
+    #print(f"{alice_bits} alice sends")
+    #print(f"{alice_basis} alice basis")
 
     # EVE
 
     eves_basis = getRandomBitString(numqubits)
-    print(f"{eves_basis} eve basis")
+    #print(f"{eves_basis} eve basis")
 
     for qubit_index in range(numqubits):
         if int(eves_basis[qubit_index]) == 1: # if 1, measure in diagonal basis
@@ -49,16 +49,16 @@ def bb84(numqubits):
         if int(bobs_basis[qubit_index]) == 0: # if 0, measure in rectilinear basis
             circuit.measure(qubit_index, qubit_index)
     
-    simulator = AerSimulator(method='statevector')
-    transpiled_circuit = transpile(circuit)
+    simulator = AerSimulator(method='stabilizer') #should look at different methods. not specifying makes qiskit autoselect the best one. means we can do more qubits
+    transpiled_circuit = transpile(circuit, simulator) # need to transpile for the simulator to run it, so it can optimize the circuit for the simulator
     job = simulator.run(transpiled_circuit,shots=1)
     result = job.result()
     counts = result.get_counts()
     #And combine the results
     bobs_bits = list(counts.keys())[0][::-1] # little-endian so flip values
 
-    print(f"{bobs_basis} bob basis")
-    print(f"{bobs_bits} bob bits")
+    #print(f"{bobs_basis} bob basis")
+    #print(f"{bobs_bits} bob bits")
 
     Alice_key = ""
     Bob_key = ""
@@ -68,8 +68,8 @@ def bb84(numqubits):
             Alice_key += alice_bits[i]
             Bob_key += bobs_bits[i]
 
-    print(f"Alice's key: {Alice_key}")
-    print(f"Bob's key: {Bob_key}")
+    #print(f"Alice's key: {Alice_key}")
+    #print(f"Bob's key: {Bob_key}")
 
     qber = calculateQber(Alice_key, Bob_key)
 
@@ -77,15 +77,16 @@ def bb84(numqubits):
 
 def calculateQber(Alice_key, Bob_key):
     subset = random.sample(range(len(Alice_key)), round(len(Alice_key)/2))
-    print(subset)
+    #print(subset)
 
-    qber = sum(1 for i in subset if Alice_key[i] != Bob_key[i]) / len(subset) # QBER is error rate
+    qber = sum(1 for i in subset if Alice_key[i] != Bob_key[i]) / len(subset) # QBER is error rate so need !=
     return qber
 
-ns = np.arange(10,29,1)
+ns = np.arange(10,300,1) 
 qbers = [bb84(n) for n in ns]
 
 plt.plot(ns,qbers)
+plt.axhline(y=0.25, color='r', linestyle='--') # qber = 0.25
 plt.xlabel("Number of qubits")
 plt.ylabel("Qber")
 plt.savefig("qber.png")
