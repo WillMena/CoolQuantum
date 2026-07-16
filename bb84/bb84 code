@@ -91,3 +91,54 @@ plt.xlabel("Number of qubits")
 plt.ylabel("Qber")
 plt.savefig("qber.png")
 plt.show()
+
+# noise
+
+from qiskit_aer.noise import NoiseModel, thermal_relaxation_error, readout_error, depolarizing_error # would be good to try different errors, this one seems most realistic
+
+def bb84_noisy(numqubits):
+    # ALICE
+    alice_bits = getRandomBitString(numqubits)
+    alice_basis = getRandomBitString(numqubits)
+    circuit = QuantumCircuit(numqubits, numqubits)
+
+    for qubit_index in range(numqubits):
+        if int(alice_bits[qubit_index]) == 1: # if bit is 1, flip |0> to |1>
+            circuit.x(qubit_index)
+        if int(alice_basis[qubit_index]) == 1: # if basis is 1, new basis is diagonal 
+            circuit.h(qubit_index)
+    
+    #print("basis 1 : diagonal, basis 0 : rectilinear")
+    #print(f"{alice_bits} alice sends")
+    #print(f"{alice_basis} alice basis")
+
+    # EVE
+
+    eves_basis = getRandomBitString(numqubits)
+    #print(f"{eves_basis} eve basis")
+
+    for qubit_index in range(numqubits):
+        if int(eves_basis[qubit_index]) == 1: # if 1, measure in diagonal basis
+            circuit.h(qubit_index) # have to put in rectilinear basis to measure (apply Hadamard on |+> or |-> to get |0> or |1>)
+            circuit.measure(qubit_index, qubit_index)
+            circuit.h(qubit_index) # put back in original basis
+        if int(eves_basis[qubit_index]) == 0: # if 0, measure in rectilinear basis
+            circuit.measure(qubit_index, qubit_index)
+
+    # BOB
+    bobs_basis = getRandomBitString(numqubits)
+
+    for qubit_index in range(numqubits):
+        if int(bobs_basis[qubit_index]) == 1: # if 1, measure in diagonal basis
+            circuit.h(qubit_index)
+            circuit.measure(qubit_index, qubit_index)
+        if int(bobs_basis[qubit_index]) == 0: # if 0, measure in rectilinear basis
+            circuit.measure(qubit_index, qubit_index)
+    
+    noise_model = NoiseModel()
+    
+    for qubit in range(numqubits):
+        error = thermal_relaxation_error(50e-6, 30e-6, 100e-6) # T1, T2, gate time
+        noise_model.add_quantum_error(error, ['x', 'h'], [qubit])
+        noise_model.add_readout_error(readout_error([0.1, 0.2])) # readout error
+        
